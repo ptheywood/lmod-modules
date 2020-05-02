@@ -1,0 +1,6 @@
+# Ignore dynamically generated / managed folders?
+available/
+deployed/
+dynamic/
+symlinks/
+old/
