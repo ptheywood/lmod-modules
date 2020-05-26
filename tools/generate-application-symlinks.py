@@ -68,6 +68,7 @@ def find_versions(search_dir, pattern, optional=False):
 def find_applications(applications):
     for app, obj in applications.items():
         common_versions = None
+        common_versions_optional = None
         for dependency in obj["dependencies"]:
             optional = dependency["optional"] if "optional" in dependency else False
             versions = find_versions(
@@ -77,15 +78,19 @@ def find_applications(applications):
             )
             dependency["versions"] = versions
             versions_set = set(versions.keys())
-            if common_versions is not None:
-                if not optional:
-                    common_versions = common_versions.intersection(versions_set)
-                else:
-                    common_versions = common_versions.union(versions_set)
+            if not optional:
+                common_versions = common_versions.intersection(versions_set) if common_versions is not None else versions_set
             else:
-                common_versions = versions_set
-        obj["versions"] =  common_versions
+                common_versions_optional = common_versions_optional.intersection(versions_set) if common_versions_optional is not None else versions_set
 
+        if common_versions is None:
+            common_versions = set()
+        if common_versions_optional is None:
+            common_versions_optional = set()
+
+        obj["versions"] =  common_versions.union( common_versions_optional)
+        # print(sorted(list(common_versions)))
+        # print(sorted(list(common_versions_optional)))
     return applications
 
 
@@ -171,13 +176,13 @@ def process_applications():
             "versions": None,
             "modulefile": {
                 "required": True,
-                "whatis": "Adds GCC toolchain to the path",
+                "whatis": "Adds installed components of the Clang toolchain to the path",
                 "prepend-path": [
                     ("PATH", "{symlink_dir}"),
                 ],
                 "setenv" : [
-                    ("CC", "gcc"),
-                    ("CXX", "g++"),
+                    ("CC", "clang"),
+                    ("CXX", "clang"),
                 ]
             },
             "dependencies": [
