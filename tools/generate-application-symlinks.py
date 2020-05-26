@@ -46,7 +46,7 @@ def generate_modulefile_string(
 
 
 
-def find_versions(search_dir, pattern):
+def find_versions(search_dir, pattern, optional=False):
     search_path = pathlib.Path(search_dir).expanduser()
     regex = re.compile(pattern)
 
@@ -69,14 +69,21 @@ def find_applications(applications):
     for app, obj in applications.items():
         common_versions = None
         for dependency in obj["dependencies"]:
+            optional = dependency["optional"] if "optional" in dependency else False
             versions = find_versions(
                 dependency["search_dir"],
-                dependency["pattern"]
+                dependency["pattern"],
+                optional
             )
             dependency["versions"] = versions
             versions_set = set(versions.keys())
-            common_versions = common_versions.intersection(versions_set) if common_versions is not None else versions_set
-        
+            if common_versions is not None:
+                if not optional:
+                    common_versions = common_versions.intersection(versions_set)
+                else:
+                    common_versions = common_versions.union(versions_set)
+            else:
+                common_versions = versions_set
         obj["versions"] =  common_versions
 
     return applications
@@ -159,6 +166,64 @@ def process_applications():
                 }
             ],
             "symlink_dirs": {}
+        }, 
+        "clang": {
+            "versions": None,
+            "modulefile": {
+                "required": True,
+                "whatis": "Adds GCC toolchain to the path",
+                "prepend-path": [
+                    ("PATH", "{symlink_dir}"),
+                ],
+                "setenv" : [
+                    ("CC", "gcc"),
+                    ("CXX", "g++"),
+                ]
+            },
+            "dependencies": [
+                {
+                    "name": "clang",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang-([0-9]+)$",
+                    "symlink_required": True,
+                },
+                {
+                    "name": "clang-tidy",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang-tidy-([0-9]+)$",
+                    "symlink_required": True,
+                    "optional": True,
+                },
+                {
+                    "name": "clang-tidy",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang-tidy-([0-9]+)$",
+                    "symlink_required": True,
+                    "optional": True,
+                },
+                {
+                    "name": "clang-check",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang-check-([0-9]+)$",
+                    "symlink_required": True,
+                    "optional": True,
+                },
+                {
+                    "name": "clang-format",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang-format-([0-9]+)$",
+                    "symlink_required": True,
+                    "optional": True,
+                },
+                {
+                    "name": "run-clang-tidy",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^run-clang-tidy-([0-9]+)$",
+                    "symlink_required": True,
+                    "optional": True,
+                }
+            ],
+            "symlink_dirs": {}
         }
     }
 
@@ -184,7 +249,10 @@ def create_symlinks(applications):
         dependencies = obj["dependencies"]
         for version in versions:
             for dependency in dependencies:
+                is_optional = dependency["optional"] if "optional" in dependency else False
                 if dependency["symlink_required"]:
+                    # If the dependency is non optional / was found for this verison
+
                     # Ensure the app directory exists
                     app_dir.mkdir(exist_ok=True)
                     # Ensure the application version directory exists
@@ -192,14 +260,24 @@ def create_symlinks(applications):
                     app_versions_dir.mkdir(exist_ok=True)
 
                     # Construct paths for symlink source and target
-                    link_source = dependency["versions"][version]["path"]
-                    link_target = pathlib.Path(app_versions_dir, dependency["name"])
-                    obj["symlink_dirs"][version] = link_target.parent
+                    versions = dependency["versions"]
+                    if version in versions:
+                        link_source = versions[version]["path"]
+                        link_target = pathlib.Path(app_versions_dir, dependency["name"])
+                        obj["symlink_dirs"][version] = link_target.parent
 
-                    # If the target does not exist, create it.
-                    if not link_target.exists():
-                        link_target.symlink_to(link_source)
-                        created_links.append(link_target)
+                        # If the target does not exist, create it.
+                        if not link_target.exists() and link_source.exists():
+                            link_target.symlink_to(link_source)
+                            created_links.append(link_target)
+
+                    elif is_optional:
+                        print(f"{app}: Optional {dependency['name']} {version} not found, continuing. ")
+                    else:
+                        raise Exception(f"Missing version {version} of non-optional dependency {dependency['name']} for {app}")
+
+                        
+
 
     print_created_symlinks(created_links)
     return created_links
