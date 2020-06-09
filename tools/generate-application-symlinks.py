@@ -110,7 +110,9 @@ def process_applications():
                     ("LD_LIBRARY_PATH", "/usr/local/cuda-{version}/lib:"),
                     ("LD_LIBRARY_PATH", "/usr/local/cuda-{version}/lib64:"),
                 ],
-                "setenv": []
+                "setenv": [
+                    ("CUDA_PATH", "/usr/local/cuda-{version}")
+                ]
             },
             "dependencies": [
                 {
