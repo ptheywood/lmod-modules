@@ -105,7 +105,8 @@ def cli_subcommands():
         title='subcommand',
         # description='valid subcommands',
         # help='extra help',
-        required=True
+        required=True,
+        dest="subcommand"  # required for required subparsers. 
     )
 
     # --------------
