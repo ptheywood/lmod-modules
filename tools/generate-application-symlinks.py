@@ -13,7 +13,8 @@ MODULEFILES_DIR = pathlib.Path(SCRIPT_DIR, "..", "available").resolve()
 
 
 def generate_modulefile_string(
-    appname, 
+    appname,
+    family,
     version, 
     whatis, 
     prepend_vars = [], 
@@ -31,7 +32,8 @@ def generate_modulefile_string(
     if whatis is not None:
         lines.append(f"module-whatis \"{whatis}\"")
     # Set the family name for conflicts.
-    lines.append(f"family {appname}")
+    if family is not None:
+        lines.append(f"family {family}")
 
     # For each passed in path, add it.
     for vname, vval in prepend_vars:
@@ -105,6 +107,7 @@ def process_applications():
             "modulefile": {
                 "required": True,
                 "whatis": "Adds CUDA compiler and library paths",
+                "family": "CUDA",
                 "prepend-path": [
                     ("PATH", "/usr/local/cuda-{version}/bin"),
                     ("LD_LIBRARY_PATH", "/usr/local/cuda-{version}/lib:"),
@@ -124,11 +127,56 @@ def process_applications():
             ],
             "symlink_dirs": {}
         },
+        "nsight-systems": {
+            "versions": None,
+            "modulefile": {
+                "required": True,
+                "whatis": "Nsight Systems",
+                "family": "nsys",
+                "prepend-path": [
+                    ("PATH", "/opt/nvidia/nsight-systems/{version}/bin"),
+                ],
+                "setenv": [
+                ]
+            },
+            "dependencies": [
+                {
+                    "name": "nsys",
+                    "search_dir": "/opt/nvidia/nsight-systems/",
+                    "pattern": r"^([0-9]{4}\.[0-9]+\.[0-9]+)$",
+                    "symlink_required": False,
+                }
+            ],
+            "symlink_dirs": {}
+        },
+        "nsight-compute": {
+            "versions": None,
+            "modulefile": {
+                "required": True,
+                "whatis": "Nsight Compute",
+                "family": "ncu",
+                "prepend-path": [
+                    ("PATH", "/opt/nvidia/nsight-compute/{version}/bin"),
+                ],
+                "setenv": [
+                ]
+            },
+            "dependencies": [
+                {
+                    "name": "ncu",
+                    "search_dir": "/opt/nvidia/nsight-compute/",
+                    "pattern": r"^([0-9]{4}\.[0-9]+\.[0-9]+)$",
+                    "symlink_required": False,
+                }
+            ],
+            "symlink_dirs": {}
+        },
         "gcc": {
             "versions": None,
             "modulefile": {
                 "required": True,
                 "whatis": "Adds GCC toolchain to the path",
+                "family": "GCC",
                 "prepend-path": [
                     ("PATH", "{symlink_dir}"),
                 ],
@@ -158,6 +206,7 @@ def process_applications():
             "modulefile": {
                 "required": True,
                 "whatis": "Adds cmake to the path",
+                "family": "cmake",
                 "prepend-path": [
                     ("PATH", "~/bin/cmake/{version}-Linux-x86_64/bin"),
                     ("MANPATH", "~/bin/cmake/{version}-Linux-x86_64/man")
@@ -179,6 +228,7 @@ def process_applications():
             "modulefile": {
                 "required": True,
                 "whatis": "Adds installed components of the Clang toolchain to the path",
+                "family": "clang",
                 "prepend-path": [
                     ("PATH", "{symlink_dir}"),
                 ],
@@ -327,9 +377,11 @@ def create_modulefiles(applications):
                     }
                     concrete_setenvs.append((vname, vfmt.format(**format_variables)))
                 whatis = modulefile_options["whatis"] if "whatis" in modulefile_options else None
+                family = modulefile_options["family"] if "family" in modulefile_options else None
                 # Get the module string 
                 modulestring = generate_modulefile_string(
                     appname = app,
+                    family = family,
                     version = version,
                     whatis = whatis, 
                     prepend_vars = concrete_prepend_paths,
