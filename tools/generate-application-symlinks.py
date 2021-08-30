@@ -53,15 +53,16 @@ def find_versions(search_dir, pattern, optional=False):
     regex = re.compile(pattern)
 
     versions = {}
-    for path in search_path.iterdir():
-        result = regex.match(path.name)
-        if result:
-            # print(path, pattern, result)
-            version = result.group(1)
-            # print(version)
-            path = path.resolve()
+    if search_path.is_dir():
+        for path in search_path.iterdir():
+            result = regex.match(path.name)
+            if result:
+                # print(path, pattern, result)
+                version = result.group(1)
+                # print(version)
+                path = path.resolve()
 
-            versions[version] = {"path": path, "version": version}
+                versions[version] = {"path": path, "version": version}
 
     return versions
 
