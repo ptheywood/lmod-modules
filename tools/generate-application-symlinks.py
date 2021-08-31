@@ -184,6 +184,7 @@ def process_applications():
                 "setenv" : [
                     ("CC", "gcc"),
                     ("CXX", "g++"),
+                    ("CUDAHOSTCXX", "g++")
                 ]
             },
             "dependencies": [
@@ -236,6 +237,7 @@ def process_applications():
                 "setenv" : [
                     ("CC", "clang"),
                     ("CXX", "clang"),
+                    ("CUDAHOSTCXX", "clang"),
                 ]
             },
             "dependencies": [
