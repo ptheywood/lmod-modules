@@ -248,6 +248,12 @@ def process_applications():
                     "symlink_required": True,
                 },
                 {
+                    "name": "clang++",
+                    "search_dir": "/usr/bin",
+                    "pattern": r"^clang\+\+-([0-9]+)$",
+                    "symlink_required": True,
+                },
+                {
                     "name": "clang-tidy",
                     "search_dir": "/usr/bin",
                     "pattern": r"^clang-tidy-([0-9]+)$",
