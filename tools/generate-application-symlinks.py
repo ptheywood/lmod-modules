@@ -157,7 +157,7 @@ def process_applications():
                 "whatis": "Nsight Compute",
                 "family": "ncu",
                 "prepend-path": [
-                    ("PATH", "/opt/nvidia/nsight-compute/{version}/bin"),
+                    ("PATH", "/opt/nvidia/nsight-compute/{version}"),
                 ],
                 "setenv": [
                 ]
