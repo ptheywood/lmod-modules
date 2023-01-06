@@ -207,6 +207,12 @@ def generate_modules():
                     "search_dir": "/usr/bin",
                     "pattern": r"^g\+\+-([0-9]+)$",
                     "symlink_required": True,
+                },
+		{
+		    "name": "gfortran",
+		    "search_dir": "/usr/bin",
+		    "pattern": r"^gfortran-([0-9]+)$",
+                    "symlink_required": True,
                 }
             ],
             "symlink_dirs": {}
