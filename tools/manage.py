@@ -426,12 +426,12 @@ def clean_symlinks():
 
 def print_created_symlinks(symlinks):
     print(f"Created {len(symlinks)} symlinks")
-    for x in symlinks:
+    for x in sorted(symlinks):
         print(f"\t{x}")
 
 def print_created_modulefiles(modulefiles):
     print(f"Created {len(modulefiles)} modulefiles")
-    for x in modulefiles:
+    for x in sorted(modulefiles):
         print(f"\t{x}")
 
 
