@@ -250,8 +250,8 @@ def generate_modules():
                 ],
                 "setenv" : [
                     ("CC", "clang"),
-                    ("CXX", "clang"),
-                    ("CUDAHOSTCXX", "clang"),
+                    ("CXX", "clang++"),
+                    ("CUDAHOSTCXX", "clang++"),
                 ]
             },
             "dependencies": [
