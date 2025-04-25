@@ -31,25 +31,25 @@ def generate_modulefile_string(
 
     lines = []
     # Comment at the top
-    lines.append(f"# {appname} {version} module")
+    lines.append(f"-- {appname} {version} module")
     # Declare the app name 
-    lines.append(f"set app {appname}")
+    lines.append(f"local app=\"{appname}\"")
     # Declare the version
-    lines.append(f"set version {version}")
+    lines.append(f"local version=\"{version}\"")
     # Add the whatis string
     if whatis is not None:
-        lines.append(f"module-whatis \"{whatis}\"")
+        lines.append(f"whatis(\"{whatis}\")")
     # Set the family name for conflicts.
     if family is not None:
-        lines.append(f"family {family}")
+        lines.append(f"family(\"{family}\")")
 
     # For each passed in path, add it.
     for vname, vval in prepend_vars:
-        lines.append(f"prepend-path {vname} {vval}")
+        lines.append(f"prepend_path(\"{vname}\", \"{vval}\")")
 
     # Set each environment variable
     for vname, vval in set_vars:
-        lines.append(f"setenv {vname} {vval}")
+        lines.append(f"setenv(\"{vname}\", \"{vval}\")")
     
     s = "\n".join(lines)
     return s
@@ -380,7 +380,7 @@ def create_modulefiles(applications):
             # Module file will be required for each version.
             versions = obj["versions"]
             for version in versions:
-                modulefile_app_version_path = pathlib.Path(modulefile_app_path, version)
+                modulefile_app_version_path = pathlib.Path(modulefile_app_path, f"{version}.lua")
 
                 # Compute the correct values of prepend_vars and set_vars.
                 concrete_prepend_paths = []
