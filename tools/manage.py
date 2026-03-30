@@ -304,7 +304,33 @@ def generate_modules():
                 }
             ],
             "symlink_dirs": {}
-        }
+        },
+        "rocm": {
+            "versions": None,
+            "modulefile": {
+                "required": True,
+                "whatis": "Adds ROCm/hip compiler and library paths",
+                "family": "rocm",
+                "prepend-path": [
+                    ("PATH", "/opt/rocm-{version}/bin"),
+                    ("LD_LIBRARY_PATH", "/opt/rocm-{version}/lib:"),
+                ],
+                "setenv": [
+                    ("HIP_PATH", "/opt/rocm-{version}"),
+                    ("ROCM_PATH", "/opt/rocm-{version}"),
+                    ("HIP_CLANG_PATH", "/opt/rocm-{version}/lib/llvm/bin"),
+                ]
+            },
+            "dependencies": [
+                {
+                    "name": "rocm",
+                    "search_dir": "/opt",
+                    "pattern": r"^rocm-([0-9]+\.[0-9]+\.[0-9]+)$",
+                    "symlink_required": False,
+                }
+            ],
+            "symlink_dirs": {}
+        },
     }
 
     # Find applications and versions
