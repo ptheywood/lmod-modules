@@ -314,6 +314,7 @@ def generate_modules():
                 "prepend-path": [
                     ("PATH", "/opt/rocm-{version}/bin"),
                     ("LD_LIBRARY_PATH", "/opt/rocm-{version}/lib:"),
+                    ("PYTHONPATH", "/opt/rocm-{version}/share/amd_smi"),
                 ],
                 "setenv": [
                     ("HIP_PATH", "/opt/rocm-{version}"),
